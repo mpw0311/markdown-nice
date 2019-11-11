@@ -1,9 +1,10 @@
 import React, {Component} from "react";
-import juice from "juice";
 import {observer, inject} from "mobx-react";
-import {Button, message, ConfigProvider} from "antd";
+import {message, ConfigProvider, Dropdown, Icon, Menu} from "antd";
 
-import {BASIC_THEME_ID, CODE_THEME_ID, MARKDOWN_THEME_ID} from "../utils/constant";
+import {solveWeChatMath, solveZhihuMath, solveHtml, copySafari} from "../utils/converter";
+import {LAYOUT_ID} from "../utils/constant";
+import "./Copy.css";
 
 @inject("content")
 @inject("navbar")
@@ -14,73 +15,49 @@ class Copy extends Component {
   constructor(props) {
     super(props);
     this.html = "";
-    this.state = {
-      loading: false,
-    };
   }
 
-  solveMath = () => {
-    const svgArr = document.getElementsByTagName("svg");
-    for (let i = 0; i < svgArr.length; i++) {
-      const svg = svgArr[i];
-      if (!svg.hasAttribute("style")) {
-        continue;
-      }
-      const width = svg.getAttribute("width");
-      if (width === null) {
-        break;
-      }
-      const height = svg.getAttribute("height");
-      svg.removeAttribute("width");
-      svg.removeAttribute("height");
-      svg.style.width = width;
-      svg.style.height = height;
-    }
-  };
-
-  solveHtml = () => {
-    const element = document.getElementById("wx-box");
-    let html = element.innerHTML;
-    html = html.replace(/\s<span class="inline/g, '&nbsp;<span class="inline');
-    html = html.replace(/svg><\/span>\s/g, "svg></span>&nbsp;");
-    const basicStyle = document.getElementById(BASIC_THEME_ID).innerText;
-    const markdownStyle = document.getElementById(MARKDOWN_THEME_ID).innerText;
-    const codeStyle = document.getElementById(CODE_THEME_ID).innerText;
-    try {
-      this.html = juice.inlineContent(html, basicStyle + markdownStyle + codeStyle, {
-        inlinePseudoElements: true,
-        preserveImportant: true,
-      });
-    } catch (e) {
-      message.error("请检查 CSS 文件是否编写正确！");
-    }
-  };
-
-  copy = () => {
-    this.setState({loading: true});
-    this.solveMath();
-    this.solveHtml();
-    document.addEventListener("copy", this.copyListener);
-    document.execCommand("copy");
-    document.removeEventListener("copy", this.copyListener);
-    this.setState({loading: false});
-  };
-
-  copyListener = (e) => {
-    // 由于antd的message原因，有这行输出则每次都会进来，否则有问题，具体原因不明
-    // console.log("clipboard");
+  copyWechat = () => {
+    const layout = document.getElementById(LAYOUT_ID); // 保护现场
+    const html = layout.innerHTML;
+    solveWeChatMath();
+    this.html = solveHtml();
+    copySafari(this.html);
     message.success("已复制，请到微信公众平台粘贴");
-    e.clipboardData.setData("text/html", this.html);
-    e.clipboardData.setData("text/plain", this.html);
-    e.preventDefault();
+    layout.innerHTML = html; // 恢复现场
+  };
+
+  copyZhihu = () => {
+    const layout = document.getElementById(LAYOUT_ID); // 保护现场
+    const html = layout.innerHTML;
+    solveZhihuMath();
+    this.html = solveHtml();
+    copySafari(this.html);
+    message.success("已复制，请到知乎粘贴");
+    layout.innerHTML = html; // 恢复现场
   };
 
   render() {
+    const menu = (
+      <Menu>
+        <div style={style.menuItem}>
+          <div role="button" style={style.themeItem} onClick={this.copyZhihu} onKeyDown={this.copyZhihu} tabIndex="0">
+            复制到知乎
+          </div>
+        </div>
+      </Menu>
+    );
     return (
       <ConfigProvider autoInsertSpaceInButton={false}>
-        <Button type="primary" style={style.btnHeight} onClick={this.copy} loading={this.state.loading}>
+        <Dropdown.Button
+          onClick={this.copyWechat}
+          overlay={menu}
+          icon={<Icon type="more" style={style.iconSize} />}
+          className="nice-copy"
+          type="primary"
+        >
           复制
-        </Button>
+        </Dropdown.Button>
       </ConfigProvider>
     );
   }
@@ -98,6 +75,27 @@ const style = {
   },
   close: {
     padding: 0,
+  },
+  format: {
+    marginRight: 8,
+  },
+  themeItem: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  themeItemAuthor: {
+    color: "gray",
+  },
+  menuItem: {
+    clear: "both",
+    margin: 0,
+    padding: "5px 12px",
+    color: "rgba(0, 0, 0, 0.65)",
+    fontWeight: "normal",
+    fontSize: "14px",
+    lineHeight: "22px",
+    whiteSpace: "nowrap",
+    cursor: "pointer",
   },
 };
 

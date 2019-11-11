@@ -1,8 +1,6 @@
 import axios from "axios";
 import MarkdownIt from "markdown-it";
-import markdownItSup from "markdown-it-sup";
 import markdownItMath from "./markdown-it-math";
-import markdownItSub from "markdown-it-sub";
 import markdownItDeflist from "markdown-it-deflist";
 import markdownItImplicitFigures from "markdown-it-implicit-figures";
 import markdownItTableOfContents from "markdown-it-table-of-contents";
@@ -10,6 +8,7 @@ import markdownItRuby from "markdown-it-ruby";
 import markdownItSpan from "./markdown-it-span";
 import markdownItRemovepre from "./markdown-it-removepre";
 import markdownItLinkfoot from "./markdown-it-linkfoot";
+import markdownItImageFlow from "./markdown-it-imageflow";
 import highlightjs from "./langHighlight";
 import markdownLiReplacer from "./markdown-it-li";
 
@@ -81,10 +80,8 @@ export const markdownParserWechat = new MarkdownIt({
 markdownParserWechat
   .use(markdownItSpan) // 在标题标签中添加span
   .use(markdownItRemovepre) // 移除代码段中的 pre code
-  .use(markdownItSup) // 上标
   .use(markdownItMath) // 数学公式
   .use(markdownItLinkfoot) // 修改脚注
-  .use(markdownItSub) // 下标
   .use(markdownItTableOfContents, {
     transformLink: () => "",
     includeLevel: [2, 3],
@@ -92,7 +89,8 @@ markdownParserWechat
   .use(markdownItRuby) // 注音符号
   .use(markdownItImplicitFigures, {figcaption: true}) // 图示
   .use(markdownItDeflist) // 定义列表
-  .use(markdownLiReplacer); // li 标签中加入 p 标签
+  .use(markdownLiReplacer) // li 标签中加入 p 标签
+  .use(markdownItImageFlow); // 横屏移动插件
 
 // 普通解析器，代码高亮用highlight
 export const markdownParser = new MarkdownIt({
@@ -114,10 +112,8 @@ export const markdownParser = new MarkdownIt({
 
 markdownParser
   .use(markdownItSpan) // 在标题标签中添加span
-  .use(markdownItSup) // 上标
   .use(markdownItMath) // 数学公式
   .use(markdownItLinkfoot) // 修改脚注
-  .use(markdownItSub) // 下标
   .use(markdownItTableOfContents, {
     transformLink: () => "",
     includeLevel: [2, 3],
@@ -125,13 +121,15 @@ markdownParser
   .use(markdownItRuby) // 注音符号
   .use(markdownItImplicitFigures, {figcaption: true}) // 图示
   .use(markdownItDeflist) // 定义列表
-  .use(markdownLiReplacer); // li 标签中加入 p 标签
+  .use(markdownLiReplacer) // li 标签中加入 p 标签
+  .use(markdownItImageFlow); // 横屏移动插件
 
 export const replaceStyle = (id, css) => {
   const style = document.getElementById(id);
   try {
     style.innerHTML = css;
-  } catch (ex) {
+  } catch (e) {
+    console.log(e);
     style.styleSheet.cssText = css;
   }
   const head = document.getElementsByTagName("head")[0];
@@ -252,19 +250,18 @@ export const getOSSName = (originName, namespace = "") => {
   return `${namespace}${key}`;
 };
 
+export const addStyleLabel = (styleLabels) => {
+  const add = (name) => {
+    const style = document.createElement("style");
+    style.id = name;
+    const head = document.getElementsByTagName("head")[0];
+    head.appendChild(style);
+  };
+  styleLabels.forEach((name) => add(name));
+};
+
 export const updateMathjax = () => {
   window.MathJax.texReset();
   window.MathJax.typesetClear();
-  window.MathJax.typesetPromise()
-    .then(() => {
-      const element = document.getElementById("layout");
-      let html = element.innerHTML;
-      html = html.replace(
-        /<mjx-container.+?display.+?>(.+?)<\/mjx-container>/g,
-        '<section class="block-equation">$1</section>',
-      );
-      html = html.replace(/<mjx-container.+?>(.+?)<\/mjx-container>/g, '<span class="inline-equation">$1</span>');
-      element.innerHTML = html;
-    })
-    .catch((err) => console.log(err.message));
+  window.MathJax.typesetPromise();
 };

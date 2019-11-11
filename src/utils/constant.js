@@ -12,6 +12,7 @@ export const CONTENT = "content";
 export const STYLE = "style";
 export const TEMPLATE_NUM = "template_num";
 export const CODE_NUM = "code_num";
+export const PREVIEW_TYPE = "preview_type";
 export const VERSION = "version";
 export const IS_PASTE_CHECK_OPEN = "is_paste_check_open";
 export const IS_PRETTIER_OPEN = "is_prettier_open";
@@ -29,6 +30,10 @@ export const BASIC_THEME_ID = "basic-theme";
 export const CODE_THEME_ID = "code-theme";
 export const MARKDOWN_THEME_ID = "markdown-theme";
 export const FONT_THEME_ID = "font-theme";
+export const LAYOUT_ID = "nice";
+export const BOX_ID = "nice-box";
+
+export const STYLE_LABELS = ["basic-theme", "markdown-theme", "code-theme", "font-theme"];
 
 export const ENTER_DELAY = 0.5;
 export const LEAVE_DELAY = 0.0;
@@ -95,6 +100,21 @@ export const TEMPLATE_OPTIONS = [
     author: "ElyhG",
   },
   {
+    id: "blueMountain",
+    name: "前端之巅同款",
+    author: "HeyRain",
+  },
+  {
+    id: "geekBlack",
+    name: "极客黑",
+    author: "hyper-xx",
+  },
+  {
+    id: "simple",
+    name: "简",
+    author: "aco",
+  },
+  {
     id: "custom",
     name: "自定义",
     author: "",
@@ -134,12 +154,12 @@ export const CODE_OPTIONS = [
   },
 ];
 
-export const VERSION_NUM = "1.2.7";
+export const VERSION_NUM = "1.4.2";
 
 export const VERSION_TIMELINE = [
-  "2019-10-20 修复公式、微信代码行、代码滚动手感等问题",
-  "2019-10-18 解决 li 和 ol 渲染问题，支持化学物理等公式，加入新主题山吹",
-  "2019-10-15 添加 CSS 编写错误提示，添加 a 标签提示",
-  "2019-10-14 行间公式过长后可拉伸，开放公式配置css",
-  "2019-10-13 修复公式 bug",
+  "2019-11-09 新增幻灯片横屏滑动语法，重置后查看；新增拷贝到知乎，支持知乎公式使用",
+  "2019-11-05 新增快捷键，新增表格添加功能",
+  "2019-11-02 break change！请将所有的自定义标签前面加上 #nice，否则将失效，可参考其他主题！新增主题「极客黑」和「简」",
+  "2019-10-28 修复公式 bug，新增主题「蓝山」，请重置看查看效果",
+  "2019-10-27 组件化，新增预览模式，修改导航栏布局",
 ];
